@@ -13,7 +13,6 @@ def main():
 [2] - Check digital signature
  >> """)
         if choise is '1':
-            (pub, priv) = rsa.newkeys(512)
             message = input("[message] >> ")
             create_package(message)
 
