@@ -1,10 +1,10 @@
 import rsa
 import hashlib
 import os
+import random
 
 path = "/Users/dima/Desktop/package/"
 filename = path + "message.txt"
-
 
 def main():
     while True:
@@ -13,6 +13,7 @@ def main():
 [2] - Check digital signature
  >> """)
         if choise is '1':
+            (pub, priv) = rsa.newkeys(512)
             message = input("[message] >> ")
             create_package(message)
 
@@ -99,58 +100,29 @@ def create_signature(message, pub):
 
 
 def get_hash(message):
+    l = h = (len(message) + 1) ^ 2 % 3
+    for i in message:
+        h += ord(i)
+    for i in range(len(message) - 1):
+        h += (ord(message[i]) + ord(message[i + 1]) % 10)
+
+    if (len(str(h)) > 2):
+        h = str(h)[0] + str(h)[2]
+    elif len(str(h)) == 1:
+        h += ord("a") % 10
+
+
+    h = str(h)
+    h += str(chr(97 + l % 3))
+    h += str(chr(97 + len(message) + l))
+
+    return h
+
+
+def get_hash_md5(message):
     message_utf8 = message.encode("utf8")
     h = hashlib.md5(message_utf8)
     return h.hexdigest()
-
-
-# -------------------------------------------------------------------
-def test():
-    (pub, priv) = rsa.newkeys(512)
-    crypto = rsa.encrypt("hello".encode("utf8"), priv)
-    with open("/Users/dima/Desktop/" + "k.txt", "w") as f:
-        f.write(str(priv.n) + "\n")
-        f.write(str(priv.d) + "\n")
-        f.write(str(priv.p) + "\n")
-        f.write(str(priv.q) + "\n")
-        f.write(str(priv.exp1) + "\n")
-        f.write(str(priv.exp2) + "\n")
-        f.write(str(priv.coef) + "\n")
-
-    with open("/Users/dima/Desktop/" + "k.txt", "r") as f:
-        n = int(f.readline())
-        d = int(f.readline())
-        p = int(f.readline())
-        q = int(f.readline())
-        exp1 = int(f.readline())
-        exp2 = int(f.readline())
-        coef = int(f.readline())
-
-    decrypt = rsa.decrypt(crypto, rsa.PrivateKey(n, 65537, d, p, q, exp1, exp2, coef))
-    print(decrypt)
-
-
-def test2():
-    file = open(path + 'message.txt')
-    message = file.read()
-    file.close()
-    file = open(path + 'signature', 'rb')
-    signature = file.read()
-    file.close()
-    with open(path + "key", "r") as f:
-        n = int(f.readline())
-        d = int(f.readline())
-        p = int(f.readline())
-        q = int(f.readline())
-        exp1 = int(f.readline())
-        exp2 = int(f.readline())
-        coef = int(f.readline())
-    file.close()
-    hash = get_hash(message)
-    temp_hash = rsa.decrypt(signature, rsa.PrivateKey(n, 65537, d, p, q, exp1, exp2, coef))
-    if temp_hash == hash:
-        return True
-# -------------------------------------------------------------------
 
 
 if __name__ == "__main__":
