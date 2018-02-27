@@ -11,6 +11,7 @@ def main():
         choise = input("""
 [1] - Create package
 [2] - Check digital signature
+[3] - Change document
  >> """)
         if choise is '1':
             (pub, priv) = rsa.newkeys(512)
@@ -19,6 +20,8 @@ def main():
 
         elif choise is '2':
             print(check_signature())
+        elif choise is '3':
+            os.system("nano ~/Desktop/package/message.txt")
         else:
             break
 
@@ -47,7 +50,7 @@ def check_signature():
         else:
             return False
     except Exception as e:
-        print('Package not exist or damaged!')
+        print('[Error] Package not exist or damaged!')
         return None
 
 
@@ -58,7 +61,7 @@ def create_package(message):
         pass
     (pub, priv) = rsa.newkeys(512)
     if create_file(message, pub) and create_signature(message, pub) and create_key_file(priv):
-        print("\nPackage created at", path)
+        print("\n ++ Package created at", path)
 
 
 def create_file(message, pub):
@@ -67,7 +70,7 @@ def create_file(message, pub):
             f.write(message)
             return True
     except Exception:
-        print("Error in creating file!")
+        print("[Error] Error in creating file!")
         return False
 
 
@@ -83,7 +86,7 @@ def create_key_file(priv):
             f.write(str(priv.coef) + "\n")
         return True
     except Exception:
-        print("Error in creating key file!")
+        print("[Error] Error in creating key file!")
         return False
 
 
@@ -95,7 +98,7 @@ def create_signature(message, pub):
             f.write(signature)
         return True
     except Exception:
-        print("Error in creating signature!")
+        print("[Error] Error in creating signature!")
         return False
 
 
